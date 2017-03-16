@@ -1,0 +1,37 @@
+Intstall:
+- JDK 8u31 http://www.oracle.com/technetwork/java/javase/downloads/index.html
+- Intellij https://www.jetbrains.com/idea/download/
+- Gradle https://gradle.org/downloads
+- SourceTree http://www.sourcetreeapp.com/
+
+SourceTree:
+- File > Clone/New
+	o URL: https://gent.cs.kuleuven.be/student/scm/git/projectAI2015_pylos
+	o Destination Path: YOUR_DEST_PATH
+	o Login: KU Leuven login (voornaam.naam:paswoord)
+	o Clone
+- gebruik:
+	o pull -> haalt de laatste aanpassingen binnen
+	o commit -> 
+		- check het vinkje "Unstaged files"
+		- in het tekstveld onderaan kan je een omschrijving van de aanpassing invullen
+		- klik op commit (hierna zijn de wijzigingen lokaal gecommit)
+	o push -> zet de de commits ook op de server
+
+Intellij:
+- File > Import project
+	o selecteer build.gradle in YOUR_DEST_PATH > OK
+	o Gradle home: vb. C:/Program Files/Gradle-2.2.1 > OK
+- in navigatie venster links: Project > Packages
+- [CTRL+SHIFT+ALT+S]
+	o voeg nieuwe SDK 8 toe als die nog niet bestaat
+	o project language level -> 8
+	o OK
+- run > edit configurations > VM options: -ea
+- run > view breakpoints > check any exception, uncheck caught exception
+
+Run:
+in pylos-gui (navigatie venster links)
+	- open PylosGuiMain klasse
+	- rechtermuis klik > Run 'PylosGuiMain.main()'
+	- vanaf nu kan je ook rechts bovenaan op de play knop klikken
