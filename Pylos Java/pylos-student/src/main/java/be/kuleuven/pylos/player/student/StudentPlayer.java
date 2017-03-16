@@ -10,6 +10,7 @@ public class StudentPlayer extends PylosPlayer {
 
 	@Override
 	public void doMove(PylosGameIF game, PylosBoard board) {
+		// Met observer kan je de tegenstander in de gaten houden ofzo
 		/* board methods
 			* 	PylosLocation[] allLocations = board.getLocations();
 			* 	PylosSphere[] allSpheres = board.getSpheres();
