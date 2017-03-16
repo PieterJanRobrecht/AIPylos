@@ -3,7 +3,7 @@ package be.kuleuven.pylos.player.student;
 import be.kuleuven.pylos.game.*;
 import be.kuleuven.pylos.player.PylosPlayer;
 
-test matthijs
+//test matthijs
 
 public class StudentPlayer extends PylosPlayer {
 
