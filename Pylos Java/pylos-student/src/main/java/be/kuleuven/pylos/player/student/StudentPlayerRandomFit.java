@@ -17,18 +17,31 @@ public class StudentPlayerRandomFit extends PylosPlayer{
     @Override
     public void doMove(PylosGameIF game, PylosBoard board) {
 		/* add a reserve sphere to a feasible random location */
-
+        PylosLocation[] allLocations = board.getLocations();
+        PylosSphere myRePylosSphere = board.getReserve(this);
+        for (PylosLocation allLocation : allLocations) {
+            if (allLocation.isUsable()) {
+                game.moveSphere(myRePylosSphere, allLocation);
+                break;
+            }
+        }
     }
 
     @Override
     public void doRemove(PylosGameIF game, PylosBoard board) {
 		/* removeSphere a random sphere */
-
+        PylosSphere[] mySpheres = board.getSpheres(this);
+        for (PylosSphere mySphere : mySpheres) {
+            if (mySphere.canRemove()) {
+                game.removeSphere(mySphere);
+                break;
+            }
+        }
     }
 
     @Override
     public void doRemoveOrPass(PylosGameIF game, PylosBoard board) {
 		/* always pass */
-
+        game.pass();
     }
 }
