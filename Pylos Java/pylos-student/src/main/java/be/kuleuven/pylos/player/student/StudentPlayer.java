@@ -2,7 +2,6 @@ package be.kuleuven.pylos.player.student;
 
 import be.kuleuven.pylos.game.*;
 import be.kuleuven.pylos.player.PylosPlayer;
-// Matthijs
 /**
  * Created by Jan on 20/02/2015.
  */
