@@ -13,7 +13,13 @@ public class StudentPlayerBestFit extends PylosPlayer{
 
     @Override
     public void doMove(PylosGameIF game, PylosBoard board) {
+        // Look to make a square
 
+        // Look if the other player can make a square
+
+        // Look to move a sphere one level up
+
+        // Move a reserve sphere
     }
 
     @Override
