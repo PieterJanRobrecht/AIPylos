@@ -1,11 +1,13 @@
 package be.kuleuven.pylos.gui;
 
+import be.kuleuven.pylos.battle.Battle;
 import be.kuleuven.pylos.game.*;
 import be.kuleuven.pylos.player.PylosPlayer;
 import be.kuleuven.pylos.player.PylosPlayerFactory;
 import be.kuleuven.pylos.player.PylosPlayerObserver;
 import be.kuleuven.pylos.player.PylosPlayerType;
 import be.kuleuven.pylos.player.codes.PlayerFactoryCodes;
+import be.kuleuven.pylos.player.codes.PylosPlayerBestFit;
 import be.kuleuven.pylos.player.student.PlayerFactoryStudent;
 import javafx.animation.Transition;
 import javafx.application.Platform;
@@ -154,46 +156,16 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
 
 	@FXML
 	void killIt(ActionEvent event) {
-		controlsPlaying(true);
 		new Thread(() -> {
-			battleStop = false;
-			Platform.runLater(() -> cbAnimate.setSelected(false));
-			int n = 1000;
-			int darkWins = 0;
-			int lightWins = 0;
-			int amountOfBattles = 0;
-			int draws = 0;
-			for (int i = 0; i < n && !battleStop; i++) {
-				PylosGame game = overridePlayGame();
-				PylosPlayer winner = game.getWinner();
-				if (winner != null){
-					PylosPlayerColor winnerColor = winner.PLAYER_COLOR;
-					if(winnerColor.toString().equals("Light")){
-						lightWins++;
-					} else {
-						darkWins++;
-					}
-				}else {
-					draws++;
-				}
 
-				amountOfBattles++;
-				resetCamera(true);
-				pylosScene.reset(true);
-				Platform.runLater(() -> {
-					taLog.clear();
-					pbReservesLight.setProgress(1);
-					pbReservesDark.setProgress(1);
-				});
-				synchronized (this) {
-					try {
-						wait(IDLE_WIN_DURATION);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
+			PylosPlayer playerLight = cbPlayerLight.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.LIGHT) : cbPlayerLight.getValue().create();
+			PylosPlayer playerDark = cbPlayerDark.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.DARK) : cbPlayerDark.getValue().create();
+			if (cbPlayerLight.getValue() != PylosScene.HUMAN_PLAYER_TYPE || cbPlayerDark.getValue() != PylosScene.HUMAN_PLAYER_TYPE) {
+				System.out.println("IT'S TIME TO DU DU DU DUEL!");
+				Battle.play(playerLight, playerDark, 1000);
+			} else{
+				System.out.println("You need to select the right players");
 			}
-			System.out.println("Amount of wins after "+amountOfBattles+" battles: \n\t Light "+ lightWins + "\n\t Dark " + darkWins + " \n\t Draws " + draws);
 		}).start();
 	}
 

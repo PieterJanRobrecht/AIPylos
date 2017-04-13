@@ -9,7 +9,7 @@ import be.kuleuven.pylos.player.codes.PylosPlayerMiniMax;
 public class BattleMain {
 
 	public static void main(String[] args){
-		Battle.play(new PylosPlayerMiniMax(), new PylosPlayerBestFit(), 100);
+		Battle.play(new PylosPlayerBestFit(), new PylosPlayerBestFit(), 2);
 	}
 
 }
