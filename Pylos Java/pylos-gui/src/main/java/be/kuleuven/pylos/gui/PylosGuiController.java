@@ -9,8 +9,8 @@ import be.kuleuven.pylos.player.codes.PlayerFactoryCodes;
 import be.kuleuven.pylos.player.student.PlayerFactoryStudent;
 import javafx.animation.Transition;
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.*;
 import javafx.scene.control.*;
@@ -151,6 +151,52 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
 		}).start();
 	}
 
+
+	@FXML
+	void killIt(ActionEvent event) {
+		controlsPlaying(true);
+		new Thread(() -> {
+			battleStop = false;
+			Platform.runLater(() -> cbAnimate.setSelected(false));
+			int n = 1000;
+			int darkWins = 0;
+			int lightWins = 0;
+			int amountOfBattles = 0;
+			int draws = 0;
+			for (int i = 0; i < n && !battleStop; i++) {
+				PylosGame game = overridePlayGame();
+				PylosPlayer winner = game.getWinner();
+				if (winner != null){
+					PylosPlayerColor winnerColor = winner.PLAYER_COLOR;
+					if(winnerColor.toString().equals("Light")){
+						lightWins++;
+					} else {
+						darkWins++;
+					}
+				}else {
+					draws++;
+				}
+
+				amountOfBattles++;
+				resetCamera(true);
+				pylosScene.reset(true);
+				Platform.runLater(() -> {
+					taLog.clear();
+					pbReservesLight.setProgress(1);
+					pbReservesDark.setProgress(1);
+				});
+				synchronized (this) {
+					try {
+						wait(IDLE_WIN_DURATION);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			System.out.println("Amount of wins after "+amountOfBattles+" battles: \n\t Light "+ lightWins + "\n\t Dark " + darkWins + " \n\t Draws " + draws);
+		}).start();
+	}
+
 	private void playGame() {
 		/* create the game */
 		PylosPlayer playerLight = cbPlayerLight.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.LIGHT) : cbPlayerLight.getValue().create();
@@ -161,6 +207,19 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
 		game = new PylosGame(pylosBoard, playerLight, playerDark, random, this, this);
 		/* play the game */
 		game.play();
+	}
+
+	private PylosGame overridePlayGame() {
+		/* create the game */
+		PylosPlayer playerLight = cbPlayerLight.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.LIGHT) : cbPlayerLight.getValue().create();
+		PylosPlayer playerDark = cbPlayerDark.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.DARK) : cbPlayerDark.getValue().create();
+		if (cbPlayerLight.getValue() == PylosScene.HUMAN_PLAYER_TYPE || cbPlayerDark.getValue() == PylosScene.HUMAN_PLAYER_TYPE) {
+			Platform.runLater(() -> cbAnimate.setSelected(true));
+		}
+		game = new PylosGame(pylosBoard, playerLight, playerDark, random, this, this);
+		/* play the game */
+		game.play();
+		return game;
 	}
 
 	private void reset() {
