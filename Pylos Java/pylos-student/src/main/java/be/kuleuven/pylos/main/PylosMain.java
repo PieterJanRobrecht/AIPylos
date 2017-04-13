@@ -36,7 +36,7 @@ public class PylosMain {
 		PylosPlayer playerLight = new PylosPlayerRandomFit();
 		PylosPlayer playerDark = new PylosPlayerRandomFit();
 
-		Battle.play(playerLight, playerDark, 100);
+//		Battle.play(playerLight, playerDark, 100, taLog);
 	}
 
 	public static void main(String[] args){

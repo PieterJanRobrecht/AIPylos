@@ -161,8 +161,8 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
 			PylosPlayer playerLight = cbPlayerLight.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.LIGHT) : cbPlayerLight.getValue().create();
 			PylosPlayer playerDark = cbPlayerDark.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.DARK) : cbPlayerDark.getValue().create();
 			if (cbPlayerLight.getValue() != PylosScene.HUMAN_PLAYER_TYPE || cbPlayerDark.getValue() != PylosScene.HUMAN_PLAYER_TYPE) {
-				System.out.println("IT'S TIME TO DU DU DU DUEL!");
-				Battle.play(playerLight, playerDark, 1000);
+				taLog.appendText("IT'S TIME TO DU DU DU DUEL!");
+				Battle.play(playerLight, playerDark, 1000, taLog);
 			} else{
 				System.out.println("You need to select the right players");
 			}

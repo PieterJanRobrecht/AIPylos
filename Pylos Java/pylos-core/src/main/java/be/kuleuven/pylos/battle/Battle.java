@@ -2,6 +2,7 @@ package be.kuleuven.pylos.battle;
 
 import be.kuleuven.pylos.game.*;
 import be.kuleuven.pylos.player.PylosPlayer;
+import javafx.scene.control.TextArea;
 
 import java.util.Random;
 
@@ -12,7 +13,7 @@ public class Battle {
 
 	private static final Random random = new Random(0);
 
-	public static double[] play(PylosPlayer playerLight, PylosPlayer playerDark, int runs) {
+	public static double[] play(PylosPlayer playerLight, PylosPlayer playerDark, int runs, TextArea taLog) {
 
 		if (runs % 2 != 0) {
 			throw new IllegalArgumentException("Please specify an even number of runs");

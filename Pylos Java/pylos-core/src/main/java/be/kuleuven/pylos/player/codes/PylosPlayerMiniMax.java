@@ -517,6 +517,6 @@ public class PylosPlayerMiniMax extends PylosPlayer {
 	}
 
 	public static void main(String[] args) {
-		Battle.play(new PylosPlayerMiniMax(), new PylosPlayerBestFit(), 50);
+//		Battle.play(new PylosPlayerMiniMax(), new PylosPlayerBestFit(), 50);
 	}
 }
