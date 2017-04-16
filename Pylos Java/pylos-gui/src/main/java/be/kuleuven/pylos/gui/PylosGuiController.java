@@ -164,7 +164,7 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
 				taLog.appendText("IT'S TIME TO DU DU DU DUEL!");
 				Battle.play(playerLight, playerDark, 1000, taLog);
 			} else{
-				System.out.println("You need to select the right players");
+				taLog.appendText("You need to select the right players");
 			}
 		}).start();
 	}

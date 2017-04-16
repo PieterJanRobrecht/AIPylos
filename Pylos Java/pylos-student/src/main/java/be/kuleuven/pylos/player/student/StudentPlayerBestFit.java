@@ -4,22 +4,19 @@ import be.kuleuven.pylos.game.*;
 import be.kuleuven.pylos.player.PylosPlayer;
 import be.kuleuven.pylos.player.codes.PylosPlayerBestFit;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by Ine on 25/02/2015.
  */
-public class StudentPlayerBestFit extends PylosPlayer{
+public class StudentPlayerBestFit extends PylosPlayer {
 
     //	public static Random random = new Random(218);
     private PylosLocation lastPylosLocation;
 
     @Override
     public void doMove(PylosGameIF game, PylosBoard board) {
-		/* collect all possible locations */
+        /* collect all possible locations */
         ArrayList<PylosLocation> allUsableLocations = new ArrayList<>();
         for (PylosLocation bl : board.getLocations()) {
             if (bl.isUsable()) {
@@ -40,24 +37,27 @@ public class StudentPlayerBestFit extends PylosPlayer{
         PylosLocation toLocation = null;
 
         sortZ(allUsableLocations, this);
-        if(allUsableLocations.size() != 0){
-            for (int i = 0; i < allUsableLocations.size(); i++) {
-                PylosLocation bl = allUsableLocations.get(i);
-                PylosSphere usedSphere = getMovableSphereMinInSquare(bl, board);
-                if (usedSphere != null && usedSphere.getLocation().getMaxInSquare(this.OTHER) < 3) {
-                    sphere = usedSphere;
-                    toLocation = bl;
-                    break;
-                }
+        List<PylosLocation> prunedForZ = getAboveZero(allUsableLocations);
+        if (prunedForZ.size() != 0) {
+
+            PylosLocation bl = prunedForZ.get(0);
+            PylosSphere usedSphere = getMovableSphereMinInSquare(bl, board);
+            if (usedSphere != null && usedSphere.getLocation().getMaxInSquare(this.OTHER) < 3) {
+                sphere = usedSphere;
+                toLocation = bl;
+            }
+            else {
+                sphere = board.getReserve(this);
+                toLocation = bl;
             }
         }
-        if(toLocation == null){
+        if (toLocation == null) {
             Collections.shuffle(allUsableLocations, getRandom());
-            if (toMaxOther.getMaxInSquare(this.OTHER) == 2) {
+            if (toMaxOther.getMaxInSquare(this.OTHER) == 2 || toMaxOther.getMaxInSquare(this.OTHER) == 3) {
                 // we should sabotage this square
                 sphere = getMovableSphereOrReserve(toMaxOther, board);
                 toLocation = toMaxOther;
-            } else if (toMaxThis.getMaxInSquare(this) == 3) {
+            } else if (toMaxThis.getMaxInSquare(this) == 2 || toMaxThis.getMaxInSquare(this) == 3) {
                 // we should create this square
                 sphere = getMovableSphereOrReserve(toMaxThis, board);
                 toLocation = toMaxThis;
@@ -85,6 +85,16 @@ public class StudentPlayerBestFit extends PylosPlayer{
         }
         game.moveSphere(sphere, toLocation);
         lastPylosLocation = toLocation;
+    }
+
+    private List<PylosLocation> getAboveZero(ArrayList<PylosLocation> allUsableLocations) {
+        List<PylosLocation> help = new ArrayList<>();
+        for (PylosLocation loc : allUsableLocations) {
+            if (loc.Z != 0) {
+                help.add(loc);
+            }
+        }
+        return help;
     }
 
     private PylosLocation getMaxInSquare(ArrayList<PylosLocation> locations, PylosPlayer player) {
