@@ -39,19 +39,8 @@ public class StudentPlayerBestFit extends PylosPlayer{
         PylosSphere sphere = null;
         PylosLocation toLocation = null;
 
-        if (toMaxOther.getMaxInSquare(this.OTHER) == 3) {
-            // we should sabotage this square
-            sphere = getMovableSphereOrReserve(toMaxOther, board);
-            toLocation = toMaxOther;
-        } else if (toMaxThis.getMaxInSquare(this) == 3) {
-            // we should create this square
-            sphere = getMovableSphereOrReserve(toMaxThis, board);
-            toLocation = toMaxThis;
-        } else {
-            // try to move a used sphere
-            // prefer higher locations, than max in square
-            // than pick a sphere with minimum in square and which does not enable the other player to create a square
-            sortZorMaxInSquare(allUsableLocations, this);
+        sortZ(allUsableLocations, this);
+        if(allUsableLocations.size() != 0){
             for (int i = 0; i < allUsableLocations.size(); i++) {
                 PylosLocation bl = allUsableLocations.get(i);
                 PylosSphere usedSphere = getMovableSphereMinInSquare(bl, board);
@@ -61,14 +50,39 @@ public class StudentPlayerBestFit extends PylosPlayer{
                     break;
                 }
             }
-            if (toLocation == null) {
-                // we couldn't move a used sphere, add a reserve sphere
-                // put it on the highest location and the max in square on the same level
-                toLocation = getMaxZorMaxInSquare(allUsableLocations, this);
-                sphere = board.getReserve(this);
+        }
+        if(toLocation == null){
+            Collections.shuffle(allUsableLocations, getRandom());
+            if (toMaxOther.getMaxInSquare(this.OTHER) == 2) {
+                // we should sabotage this square
+                sphere = getMovableSphereOrReserve(toMaxOther, board);
+                toLocation = toMaxOther;
+            } else if (toMaxThis.getMaxInSquare(this) == 3) {
+                // we should create this square
+                sphere = getMovableSphereOrReserve(toMaxThis, board);
+                toLocation = toMaxThis;
+            } else {
+                // try to move a used sphere
+                // prefer higher locations, than max in square
+                // than pick a sphere with minimum in square and which does not enable the other player to create a square
+                sortZorMaxInSquare(allUsableLocations, this);
+                for (int i = 0; i < allUsableLocations.size(); i++) {
+                    PylosLocation bl = allUsableLocations.get(i);
+                    PylosSphere usedSphere = getMovableSphereMinInSquare(bl, board);
+                    if (usedSphere != null && usedSphere.getLocation().getMaxInSquare(this.OTHER) < 3) {
+                        sphere = usedSphere;
+                        toLocation = bl;
+                        break;
+                    }
+                }
+                if (toLocation == null) {
+                    // we couldn't move a used sphere, add a reserve sphere
+                    // put it on the highest location and the max in square on the same level
+                    toLocation = getMaxZorMaxInSquare(allUsableLocations, this);
+                    sphere = board.getReserve(this);
+                }
             }
         }
-
         game.moveSphere(sphere, toLocation);
         lastPylosLocation = toLocation;
     }
@@ -100,6 +114,16 @@ public class StudentPlayerBestFit extends PylosPlayer{
                 int compZ = -Integer.compare(o1.Z, o2.Z);
                 if (compZ != 0) return compZ;
                 return -Integer.compare(o1.getMaxInSquare(player), o2.getMaxInSquare(player));
+            }
+        });
+    }
+
+    private void sortZ(ArrayList<PylosLocation> locations, PylosPlayer player) {
+        Collections.sort(locations, new Comparator<PylosLocation>() {
+            @Override
+            public int compare(PylosLocation o1, PylosLocation o2) {
+                int compZ = -Integer.compare(o1.Z, o2.Z);
+                return compZ;
             }
         });
     }
