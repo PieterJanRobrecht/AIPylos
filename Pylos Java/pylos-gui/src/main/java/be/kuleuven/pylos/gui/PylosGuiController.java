@@ -156,6 +156,7 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
 
 	@FXML
 	void killIt(ActionEvent event) {
+		taLog.clear();
 		new Thread(() -> {
 
 			PylosPlayer playerLight = cbPlayerLight.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.LIGHT) : cbPlayerLight.getValue().create();
