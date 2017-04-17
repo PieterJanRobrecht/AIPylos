@@ -2,6 +2,7 @@ package be.kuleuven.pylos.battle;
 
 import be.kuleuven.pylos.game.*;
 import be.kuleuven.pylos.player.PylosPlayer;
+import javafx.application.Platform;
 import javafx.scene.control.TextArea;
 
 import java.util.Random;
@@ -12,8 +13,10 @@ import java.util.Random;
 public class Battle {
 
 	private static final Random random = new Random(0);
+	private static TextArea taLog;
 
 	public static double[] play(PylosPlayer playerLight, PylosPlayer playerDark, int runs, TextArea taLog) {
+		Battle.taLog = taLog;
 
 		if (runs % 2 != 0) {
 			throw new IllegalArgumentException("Please specify an even number of runs");
@@ -79,28 +82,32 @@ public class Battle {
 		int totalDarkWin = lightStartDarkWin + darkStartDarkWin;
 		int totalDraw = lightStartDraw + darkStartDraw;
 
-		System.out.println("");
-		System.out.println("----------------------------");
-		System.out.println(runs / 2 + " games where " + playerLightClass + " starts:");
-		System.out.println(String.format(" * %6s", String.format("%.2f", (double) lightStartLightWin / (runs / 2) * 100)) + "% " + playerLightClass);
-		System.out.println(String.format(" * %6s", String.format("%.2f", (double) lightStartDarkWin / (runs / 2) * 100)) + "% " + playerDarkClass);
-		System.out.println(String.format(" * %6s", String.format("%.2f", (double) lightStartDraw / (runs / 2) * 100)) + "% Draw");
-		System.out.println();
-		System.out.println(runs / 2 + " games where " + playerDarkClass + " starts:");
-		System.out.println(String.format(" * %6s", String.format("%.2f", (double) darkStartLightWin / (runs / 2) * 100)) + "% " + playerLightClass);
-		System.out.println(String.format(" * %6s", String.format("%.2f", (double) darkStartDarkWin / (runs / 2) * 100)) + "% " + playerDarkClass);
-		System.out.println(String.format(" * %6s", String.format("%.2f", (double) darkStartDraw / (runs / 2) * 100)) + "% Draw");
-		System.out.println();
-		System.out.println(runs + " games in total:");
-		System.out.println(String.format(" * %6s", String.format("%.2f", (double) totalLightWin / runs * 100)) + "% " + playerLightClass);
-		System.out.println(String.format(" * %6s", String.format("%.2f", (double) totalDarkWin / runs * 100)) + "% " + playerDarkClass);
-		System.out.println(String.format(" * %6s", String.format("%.2f", (double) totalDraw / runs * 100)) + "% Draw");
-		System.out.println();
-		System.out.println("Time: " + String.format("%.2f", totalPlayTime) + " sec (" + String.format("%.2f", totalPlayTime / runs) + " sec / game)");
-		System.out.println("----------------------------");
+		writeText("");
+		writeText("----------------------------");
+		writeText(runs / 2 + " games where " + playerLightClass + " starts:");
+		writeText(String.format(" * %6s", String.format("%.2f", (double) lightStartLightWin / (runs / 2) * 100)) + "% " + playerLightClass);
+		writeText(String.format(" * %6s", String.format("%.2f", (double) lightStartDarkWin / (runs / 2) * 100)) + "% " + playerDarkClass);
+		writeText(String.format(" * %6s", String.format("%.2f", (double) lightStartDraw / (runs / 2) * 100)) + "% Draw");
+		writeText("");
+		writeText(runs / 2 + " games where " + playerDarkClass + " starts:");
+		writeText(String.format(" * %6s", String.format("%.2f", (double) darkStartLightWin / (runs / 2) * 100)) + "% " + playerLightClass);
+		writeText(String.format(" * %6s", String.format("%.2f", (double) darkStartDarkWin / (runs / 2) * 100)) + "% " + playerDarkClass);
+		writeText(String.format(" * %6s", String.format("%.2f", (double) darkStartDraw / (runs / 2) * 100)) + "% Draw");
+		writeText("");
+		writeText(runs + " games in total:");
+		writeText(String.format(" * %6s", String.format("%.2f", (double) totalLightWin / runs * 100)) + "% " + playerLightClass);
+		writeText(String.format(" * %6s", String.format("%.2f", (double) totalDarkWin / runs * 100)) + "% " + playerDarkClass);
+		writeText(String.format(" * %6s", String.format("%.2f", (double) totalDraw / runs * 100)) + "% Draw");
+		writeText("");
+		writeText("Time: " + String.format("%.2f", totalPlayTime) + " sec (" + String.format("%.2f", totalPlayTime / runs) + " sec / game)");
+		writeText("----------------------------");
 
 		double[] wins = new double[]{(double)(totalLightWin) / runs, (double)(totalDarkWin) / runs, (double)(totalDraw) / runs};
 		return wins;
+	}
+
+	private static void writeText(String text){
+		Platform.runLater(() -> taLog.appendText(text + "\n"));
 	}
 
 }
