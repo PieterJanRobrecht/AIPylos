@@ -61,15 +61,10 @@ public class PylosMain {
 
 	public static void main(String[] args){
 
-		/* !!! vm argument !!! -ea */
-
-//		new PylosMain().startSingleGame();
-//		new PylosMain().startBattle();
-
 		// create a neural network, without using a factory
 		BasicNetwork network = new BasicNetwork();
 		network.addLayer(new BasicLayer(null,true,2));
-//		network.addLayer(new BasicLayer(new ActivationReLU(),true,5));
+		network.addLayer(new BasicLayer(new ActivationSigmoid(),true,5));
 		network.addLayer(new BasicLayer(new ActivationSigmoid(),false,1));
 		network.getStructure().finalizeStructure();
 		network.reset();
@@ -98,7 +93,6 @@ public class PylosMain {
 		}
 
 		Encog.getInstance().shutdown();
-
 	}
 
 }
