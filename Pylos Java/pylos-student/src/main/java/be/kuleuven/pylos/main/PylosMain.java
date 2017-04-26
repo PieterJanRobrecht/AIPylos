@@ -68,6 +68,7 @@ public class PylosMain {
 		network.addLayer(new BasicLayer(new ActivationSigmoid(),false,1));
 		network.getStructure().finalizeStructure();
 		network.reset();
+		System.out.println("Hello");
 
 		// create training data
 		MLDataSet trainingSet = new BasicMLDataSet(XOR_INPUT, XOR_IDEAL);
