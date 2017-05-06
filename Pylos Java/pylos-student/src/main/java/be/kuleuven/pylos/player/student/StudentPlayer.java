@@ -30,7 +30,7 @@ public class StudentPlayer extends PylosPlayer {
     double[][] choseSphere;
 
     PylosLocation[] locations;
-    PylosSphere[] spheres;
+    PylosSphere[][] spheres;
 
     BasicNetwork networkLocation;
     BasicNetwork networkSphere;
@@ -46,22 +46,32 @@ public class StudentPlayer extends PylosPlayer {
 
     @Override
     public void doMove(PylosGameIF game, PylosBoard board) {
-        List<double[]> data = readBoard(game, board);
-        System.out.println("Read the board: " + Arrays.toString(data.get(0)));
-        List<double[]> answers = computeAnswer(data);
+        List<double[][]> data = readBoard(game, board);
+        System.out.println("Read the board: " + Arrays.toString(data.get(0)[0]));
+        List<double[]> answerLocation = computerLocation(data.get(0)[0]);
+        int locationIndex = getBiggest(answerLocation.get(0));
+        List<double[]> answersSphere = computeSphere(data.get(1)[locationIndex]);
         System.out.println("Ready to make a decision");
-        int locationIndex = getBiggest(answers.get(0));
-        int sphereIndex = getBiggest(answers.get(1));
+        int sphereIndex = getBiggest(answersSphere.get(0));
         System.out.println("Deciding to pick location: " + locationIndex + " and sphere: " + sphereIndex);
-        game.moveSphere(spheres[sphereIndex], locations[locationIndex]);
+        game.moveSphere(spheres[locationIndex][sphereIndex], locations[locationIndex]);
         lastPylosLocation = locations[locationIndex];
+    }
+
+    private List<double[]> computerLocation(double[] doubles) {
+        List<double[]> answers = new ArrayList<>();
+
+        MLData mlData = new BasicMLData(doubles);
+        answers.add(networkLocation.compute(mlData).getData());
+        System.out.println("The answer for the location was: " + Arrays.toString(answers.get(0)));
+        return answers;
     }
 
     private int getBiggest(double[] doubles) {
         int index = 0;
         double largest = 0;
-        for(int i = 0 ;i<doubles.length;i++){
-            if(doubles[i] > largest){
+        for (int i = 0; i < doubles.length; i++) {
+            if (doubles[i] > largest) {
                 largest = doubles[i];
                 index = i;
             }
@@ -69,27 +79,22 @@ public class StudentPlayer extends PylosPlayer {
         return index;
     }
 
-    private List<double[]> computeAnswer(List<double[]> data) {
+    private List<double[]> computeSphere(double[] data) {
         List<double[]> answers = new ArrayList<>();
 
-        MLData mlData = new BasicMLData(data.get(0));
-        answers.add(networkLocation.compute(mlData).getData());
-        System.out.println("The answer for the location was: "+ Arrays.toString(answers.get(0)));
-
-        mlData = new BasicMLData(data.get(1));
+        MLData mlData = new BasicMLData(data);
         answers.add(networkSphere.compute(mlData).getData());
-        System.out.println("The answer for the sphere was: " + Arrays.toString(answers.get(1)));
+        System.out.println("The answer for the sphere was: " + Arrays.toString(answers.get(0)));
         return answers;
     }
 
-    private List<double[]> readBoard(PylosGameIF game, PylosBoard board) {
+    private List<double[][]> readBoard(PylosGameIF game, PylosBoard board) {
         locations = new PylosLocation[5];
-        spheres = new PylosSphere[2];
+        spheres = new PylosSphere[5][2];
 
-        List<double[]> data = new ArrayList<>();
-        double[] input = new double[5];
-        double[] boardOrReserve = new double[2];
-
+        List<double[][]> data = new ArrayList<>();
+        double[][] input = new double[1][5];
+        double[][] boardOrReserve = new double[5][2];
 
         ArrayList<PylosLocation> allUsableLocations = new ArrayList<>();
         for (PylosLocation bl : board.getLocations()) {
@@ -114,41 +119,43 @@ public class StudentPlayer extends PylosPlayer {
         List<PylosLocation> prunedForZ = getAboveZero(allUsableLocations);
         if (prunedForZ.size() != 0) {
             PylosLocation bl = prunedForZ.get(0);
-            getMovableSphereOrReserve(bl, board, boardOrReserve);
-            input[0] = 1;
+            getMovableSphereOrReserve(bl, board, boardOrReserve[0], spheres[0]);
+            input[0][0] = 1;
             locations[0] = bl;
         }
         Collections.shuffle(allUsableLocations, getRandom());
         if (toMaxOther.getMaxInSquare(this.OTHER) == 2 || toMaxOther.getMaxInSquare(this.OTHER) == 3) {
-            getMovableSphereOrReserve(toMaxOther, board, boardOrReserve);
-            input[1] = 1;
-            locations[1]=toMaxOther;
+
+            getMovableSphereOrReserve(toMaxOther, board, boardOrReserve[1], spheres[1]);
+
+            input[0][1] = 1;
+            locations[1] = toMaxOther;
         }
         if (toMaxThis.getMaxInSquare(this) == 2 || toMaxThis.getMaxInSquare(this) == 3) {
-            getMovableSphereOrReserve(toMaxThis, board, boardOrReserve);
-            input[2] = 1;
-            locations[2]=toMaxThis;
+
+            getMovableSphereOrReserve(toMaxThis, board, boardOrReserve[2], spheres[2]);
+            input[0][2] = 1;
+            locations[2] = toMaxThis;
         }
         sortZorMaxInSquare(allUsableLocations, this);
         for (PylosLocation bl : allUsableLocations) {
             PylosSphere usedSphere = getMovableSphereMinInSquare(bl, board);
             if (usedSphere != null && usedSphere.getLocation().getMaxInSquare(this.OTHER) < 3) {
-                input[3] = 1;
-                locations[3]=bl;
+                input[0][3] = 1;
+                locations[3] = bl;
 
-                boardOrReserve[0] = 1;
-                boardOrReserve[1] = 1;
-
-                spheres[0] = usedSphere;
-                spheres[1] = board.getReserve(this);
+                boardOrReserve[3][0] = 1;
+                boardOrReserve[3][1] = 1;
+                spheres[3][0] = usedSphere;
+                spheres[3][1] = board.getReserve(this);
                 break;
             }
         }
-        input[4] = 1;
+        input[0][4] = 1;
         locations[4] = getMaxZorMaxInSquare(allUsableLocations, this);
-        if (spheres[0] == null) {
-            getMovableSphereOrReserve(getMaxZorMaxInSquare(allUsableLocations, this), board, boardOrReserve);
-        }
+
+        getMovableSphereOrReserve(getMaxZorMaxInSquare(allUsableLocations, this), board, boardOrReserve[4], spheres[4]);
+
         data.add(input);
         data.add(boardOrReserve);
         return data;
@@ -266,7 +273,7 @@ public class StudentPlayer extends PylosPlayer {
 
     @Override
     public void doRemoveOrPass(PylosGameIF game, PylosBoard board) {
-		/* collect all removable spheres */
+        /* collect all removable spheres */
         ArrayList<PylosSphere> removableSpheres = new ArrayList<>();
         for (PylosSphere ps : board.getSpheres(this)) {
             if (ps.canRemove()) {
@@ -362,20 +369,16 @@ public class StudentPlayer extends PylosPlayer {
         }
     }
 
-    private void getMovableSphereOrReserve(PylosLocation toLocation, PylosBoard board, double[] boardOrReserve) {
+    private void getMovableSphereOrReserve(PylosLocation toLocation, PylosBoard board, double[] boardOrReserve, PylosSphere[] sphere) {
         PylosSphere usedSphere = getMovableSphereMinInSquare(toLocation, board);
         if (usedSphere != null) {
             boardOrReserve[0] = 1;
             boardOrReserve[1] = 1;
-
-            spheres[0] = usedSphere;
-            spheres[1] = board.getReserve(this);
+            sphere[0]=usedSphere;
         } else {
             boardOrReserve[0] = 0;
             boardOrReserve[1] = 1;
-
-            spheres[0] = usedSphere;
-            spheres[1] = board.getReserve(this);
         }
+        sphere[1] = board.getReserve(this);
     }
 }
