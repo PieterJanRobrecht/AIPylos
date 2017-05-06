@@ -2,8 +2,10 @@ package be.kuleuven.pylos.player.student;
 
 import be.kuleuven.pylos.game.*;
 import be.kuleuven.pylos.player.PylosPlayer;
+import be.kuleuven.pylos.player.PylosPlayerObserver;
 import be.kuleuven.pylos.player.codes.PylosPlayerBestFit;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -14,8 +16,14 @@ public class StudentPlayerBestFit extends PylosPlayer {
     //	public static Random random = new Random(218);
     private PylosLocation lastPylosLocation;
 
+    private int[] input = new int[5];
+    private int[] boardOrReserve = new int[2];
+    private int[] output = new int[5];
+    private int[] choseSphere = new int[2];
+
     @Override
     public void doMove(PylosGameIF game, PylosBoard board) {
+        resetInput();
         /* collect all possible locations */
         ArrayList<PylosLocation> allUsableLocations = new ArrayList<>();
         for (PylosLocation bl : board.getLocations()) {
@@ -39,52 +47,74 @@ public class StudentPlayerBestFit extends PylosPlayer {
         sortZ(allUsableLocations, this);
         List<PylosLocation> prunedForZ = getAboveZero(allUsableLocations);
         if (prunedForZ.size() != 0) {
-
             PylosLocation bl = prunedForZ.get(0);
-            PylosSphere usedSphere = getMovableSphereMinInSquare(bl, board);
-            if (usedSphere != null && usedSphere.getLocation().getMaxInSquare(this.OTHER) < 3) {
-                sphere = usedSphere;
-                toLocation = bl;
-            }
-            else {
-                sphere = board.getReserve(this);
-                toLocation = bl;
-            }
+            sphere = getMovableSphereOrReserve(bl, board);
+            toLocation = bl;
+
+            input[0] = 1;
+            output[0] = 1;
         }
-        if (toLocation == null) {
-            Collections.shuffle(allUsableLocations, getRandom());
-            if (toMaxOther.getMaxInSquare(this.OTHER) == 2 || toMaxOther.getMaxInSquare(this.OTHER) == 3) {
-                // we should sabotage this square
+//        if (toLocation == null) {
+        Collections.shuffle(allUsableLocations, getRandom());
+        if (toMaxOther.getMaxInSquare(this.OTHER) == 2 || toMaxOther.getMaxInSquare(this.OTHER) == 3) {
+            // we should sabotage this square
+            if (toLocation == null) {
                 sphere = getMovableSphereOrReserve(toMaxOther, board);
                 toLocation = toMaxOther;
-            } else if (toMaxThis.getMaxInSquare(this) == 2 || toMaxThis.getMaxInSquare(this) == 3) {
-                // we should create this square
+                output[1] = 1;
+            }
+            input[1] = 1;
+        }  if (toMaxThis.getMaxInSquare(this) == 2 || toMaxThis.getMaxInSquare(this) == 3) {
+            // we should create this square
+            if (toLocation == null) {
                 sphere = getMovableSphereOrReserve(toMaxThis, board);
                 toLocation = toMaxThis;
-            } else {
-                // try to move a used sphere
-                // prefer higher locations, than max in square
-                // than pick a sphere with minimum in square and which does not enable the other player to create a square
-                sortZorMaxInSquare(allUsableLocations, this);
-                for (int i = 0; i < allUsableLocations.size(); i++) {
-                    PylosLocation bl = allUsableLocations.get(i);
-                    PylosSphere usedSphere = getMovableSphereMinInSquare(bl, board);
-                    if (usedSphere != null && usedSphere.getLocation().getMaxInSquare(this.OTHER) < 3) {
+                output[2] = 1;
+            }
+            input[2] = 1;
+        }  {
+            // try to move a used sphere
+            // prefer higher locations, than max in square
+            // than pick a sphere with minimum in square and which does not enable the other player to create a square
+            sortZorMaxInSquare(allUsableLocations, this);
+            for (int i = 0; i < allUsableLocations.size(); i++) {
+                PylosLocation bl = allUsableLocations.get(i);
+                PylosSphere usedSphere = getMovableSphereMinInSquare(bl, board);
+                if (usedSphere != null && usedSphere.getLocation().getMaxInSquare(this.OTHER) < 3) {
+                    if (toLocation == null) {
                         sphere = usedSphere;
                         toLocation = bl;
-                        break;
+                        output[3] = 1;
                     }
-                }
-                if (toLocation == null) {
-                    // we couldn't move a used sphere, add a reserve sphere
-                    // put it on the highest location and the max in square on the same level
-                    toLocation = getMaxZorMaxInSquare(allUsableLocations, this);
-                    sphere = board.getReserve(this);
+                    input[3] = 1;
+                    break;
                 }
             }
+            if (toLocation == null) {
+                // we couldn't move a used sphere, add a reserve sphere
+                // put it on the highest location and the max in square on the same level
+                toLocation = getMaxZorMaxInSquare(allUsableLocations, this);
+                sphere = board.getReserve(this);
+                output[4] = 1;
+            }
+            input[4] = 1;
+//            }
         }
+        getObserver().shout(Arrays.toString(input) +", "+Arrays.toString(output)+ ", " + Arrays.toString(boardOrReserve) + ", " + Arrays.toString(choseSphere));
+
         game.moveSphere(sphere, toLocation);
         lastPylosLocation = toLocation;
+    }
+
+    private void resetInput() {
+        for (int i = 0; i < input.length; i++) {
+            input[i] = 0;
+            output[i] = 0;
+        }
+        for (int i = 0; i < boardOrReserve.length; i++) {
+            boardOrReserve[i] = 0;
+            choseSphere[i] = 0;
+        }
     }
 
     private List<PylosLocation> getAboveZero(ArrayList<PylosLocation> allUsableLocations) {
@@ -146,7 +176,7 @@ public class StudentPlayerBestFit extends PylosPlayer {
             }
         }
         if (!movableSpheres.isEmpty()) {
-			/* pick the one with the minimum in square */
+            /* pick the one with the minimum in square */
             PylosSphere sphere = Collections.min(movableSpheres, new Comparator<PylosSphere>() {
                 @Override
                 public int compare(PylosSphere o1, PylosSphere o2) {
@@ -161,12 +191,26 @@ public class StudentPlayerBestFit extends PylosPlayer {
 
     private PylosSphere getMovableSphereOrReserve(PylosLocation toLocation, PylosBoard board) {
         PylosSphere usedSphere = getMovableSphereMinInSquare(toLocation, board);
-        return usedSphere != null ? usedSphere : board.getReserve(this);
+        if (usedSphere != null) {
+            boardOrReserve[0] = 1;
+            boardOrReserve[1] = 1;
+
+            choseSphere[0] = 1;
+            choseSphere[1] = 0;
+            return usedSphere;
+        } else {
+            boardOrReserve[0] = 0;
+            boardOrReserve[1] = 1;
+
+            choseSphere[0] = 0;
+            choseSphere[1] = 1;
+            return board.getReserve(this);
+        }
     }
 
     @Override
     public void doRemove(PylosGameIF game, PylosBoard board) {
-		/* removeSphere a random sphere from the square */
+        /* removeSphere a random sphere from the square */
         PylosSphere sphereToRemove = lastPylosLocation.getSphere();
         game.removeSphere(sphereToRemove);
     }
