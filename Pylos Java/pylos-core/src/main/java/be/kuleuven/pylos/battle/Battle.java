@@ -2,6 +2,7 @@ package be.kuleuven.pylos.battle;
 
 import be.kuleuven.pylos.game.*;
 import be.kuleuven.pylos.player.PylosPlayer;
+import be.kuleuven.pylos.player.PylosPlayerObserver;
 import javafx.application.Platform;
 import javafx.scene.control.TextArea;
 
@@ -110,4 +111,13 @@ public class Battle {
 		Platform.runLater(() -> taLog.appendText(text + "\n"));
 	}
 
+    public static void learn(PylosPlayer playerLight, PylosPlayer playerDark, int runs, TextArea taLog) {
+		Battle.taLog = taLog;
+		for (int i = 0; i < runs; i++) {
+			PylosBoard board = new PylosBoard();
+			PylosGame game = new PylosGame(board, playerLight, playerDark, random, PylosGameObserver.NONE, PylosPlayerObserver.CONSOLE_PLAYER_OBSERVER);
+			game.play();
+		}
+		writeText("Done Learning");
+    }
 }

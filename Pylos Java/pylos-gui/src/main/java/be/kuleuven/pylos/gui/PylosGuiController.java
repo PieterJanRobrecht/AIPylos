@@ -170,6 +170,23 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
 		}).start();
 	}
 
+
+	@FXML
+	void learnIt(ActionEvent event) {
+		taLog.clear();
+		new Thread(() -> {
+
+			PylosPlayer playerLight = cbPlayerLight.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.LIGHT) : cbPlayerLight.getValue().create();
+			PylosPlayer playerDark = cbPlayerDark.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.DARK) : cbPlayerDark.getValue().create();
+			if (cbPlayerLight.getValue() != PylosScene.HUMAN_PLAYER_TYPE || cbPlayerDark.getValue() != PylosScene.HUMAN_PLAYER_TYPE) {
+				taLog.appendText("IT'S TIME TO LEARN!\n");
+				Battle.learn(playerLight, playerDark, 1000, taLog);
+			} else{
+				taLog.appendText("You need to select the right players");
+			}
+		}).start();
+	}
+
 	private void playGame() {
 		/* create the game */
 		PylosPlayer playerLight = cbPlayerLight.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.LIGHT) : cbPlayerLight.getValue().create();
