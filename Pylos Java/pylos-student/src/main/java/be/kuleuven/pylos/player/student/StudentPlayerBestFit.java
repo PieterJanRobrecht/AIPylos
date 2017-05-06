@@ -85,6 +85,12 @@ public class StudentPlayerBestFit extends PylosPlayer {
                         sphere = usedSphere;
                         toLocation = bl;
                         output[3] = 1;
+
+                        boardOrReserve[0] = 1;
+                        boardOrReserve[1] = 1;
+
+                        choseSphere[0] = 1;
+                        choseSphere[1] = 0;
                     }
                     input[3] = 1;
                     break;
@@ -95,12 +101,19 @@ public class StudentPlayerBestFit extends PylosPlayer {
                 // put it on the highest location and the max in square on the same level
                 toLocation = getMaxZorMaxInSquare(allUsableLocations, this);
                 sphere = board.getReserve(this);
+
+                boardOrReserve[0] = 0;
+                boardOrReserve[1] = 1;
+
+                choseSphere[0] = 0;
+                choseSphere[1] = 1;
+
                 output[4] = 1;
             }
             input[4] = 1;
 //            }
         }
-        getObserver().shout(Arrays.toString(input) +", "+Arrays.toString(output)+ ", " + Arrays.toString(boardOrReserve) + ", " + Arrays.toString(choseSphere));
+        getObserver().shout(Arrays.toString(input) +";"+Arrays.toString(output)+ ";" + Arrays.toString(boardOrReserve) + ";" + Arrays.toString(choseSphere));
 
         game.moveSphere(sphere, toLocation);
         lastPylosLocation = toLocation;

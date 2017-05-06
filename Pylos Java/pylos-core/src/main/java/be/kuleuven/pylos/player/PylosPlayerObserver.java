@@ -43,19 +43,21 @@ public interface PylosPlayerObserver {
 	};
 
 	PylosPlayerObserver CONSOLE_PLAYER_OBSERVER = new PylosPlayerObserver() {
-		PrintWriter out;
+		FileOutputStream outputFile;
+		PrintStream printOutput;
 
 		{
 			try {
-				out = new PrintWriter("filename.txt", "UTF-8");
-			} catch (FileNotFoundException | UnsupportedEncodingException e) {
+				outputFile = new FileOutputStream("filename.txt");
+				printOutput = new PrintStream(outputFile);
+			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
 		}
 
 		@Override
 		public void shout(String str) {
-			out.println(str);
+			printOutput.println(str);
 		}
 
 		@Override
