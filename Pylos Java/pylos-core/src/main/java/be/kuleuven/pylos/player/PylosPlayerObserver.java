@@ -17,6 +17,11 @@ public interface PylosPlayerObserver {
 		}
 
 		@Override
+		public void shoutAI(String str) {
+
+		}
+
+		@Override
 		public void shoutGood(String str) {
 
 		}
@@ -44,12 +49,24 @@ public interface PylosPlayerObserver {
 
 	PylosPlayerObserver CONSOLE_PLAYER_OBSERVER = new PylosPlayerObserver() {
 		FileOutputStream outputFile;
+		FileOutputStream outputFileAI;
 		PrintStream printOutput;
+		PrintStream printOutputAI;
 
 		{
 			try {
-				outputFile = new FileOutputStream("filename.txt");
+				outputFile = new FileOutputStream("log.txt");
 				printOutput = new PrintStream(outputFile);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+
+
+		{
+			try {
+				outputFileAI = new FileOutputStream("AI.txt");
+				printOutputAI = new PrintStream(outputFileAI);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -58,6 +75,11 @@ public interface PylosPlayerObserver {
 		@Override
 		public void shout(String str) {
 			printOutput.println(str);
+		}
+
+		@Override
+		public void shoutAI(String str) {
+			printOutputAI.println(str);
 		}
 
 		@Override
@@ -87,6 +109,7 @@ public interface PylosPlayerObserver {
 	};
 
 	void shout(String str);
+	void shoutAI(String str);
 	void shoutGood(String str);
 	void shoutBad(String str);
 	void checkingMoveSphere(PylosSphere pylosSphere, PylosLocation toLocation);

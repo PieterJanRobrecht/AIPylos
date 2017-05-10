@@ -35,13 +35,20 @@ public class StudentPlayer extends PylosPlayer {
     BasicNetwork networkLocation;
     BasicNetwork networkSphere;
 
+    int counter = 0;
+
     public StudentPlayer() {
         readFile();
         System.out.println("Read the entire file and all arrays are made");
         makeNeuralNetwork();
-        System.out.println("Neural net were made");
-        trainNet();
-        System.out.println("Net were trained");
+
+        if(counter==0){
+            System.out.println("!!!!!!!!!!! ------- file empty ------- !!!!!!!!!!!");
+        }else{
+            System.out.println("Neural net were made");
+            trainNet();
+            System.out.println("Net were trained");
+        }
     }
 
     @Override
@@ -214,9 +221,9 @@ public class StudentPlayer extends PylosPlayer {
             List<double[]> boardOrReserve = new ArrayList<>();
             List<double[]> choseSphere = new ArrayList<>();
 
-            int counter = 0;
+            counter = 0;
 
-            try (BufferedReader br = new BufferedReader(new FileReader("filename.txt"))) {
+            try (BufferedReader br = new BufferedReader(new FileReader("AI.txt"))) {
                 String line;
 
                 while ((line = br.readLine()) != null) {

@@ -473,6 +473,12 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
 	}
 
 	@Override
+	public void shoutAI(String str) {
+		Platform.runLater(() -> vbShoutContainer.setStyle("-fx-background-color: " + COLOR_SHOUT_NORMAL));
+		pylosScene.shout(str);
+	}
+
+	@Override
 	public void shoutGood(String str) {
 		Platform.runLater(() -> vbShoutContainer.setStyle("-fx-background-color: " + COLOR_SHOUT_GOOD));
 		pylosScene.shout(str);

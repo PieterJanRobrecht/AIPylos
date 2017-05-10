@@ -113,7 +113,7 @@ public class StudentPlayerBestFit extends PylosPlayer {
             input[4] = 1;
 //            }
         }
-        getObserver().shout(Arrays.toString(input) +";"+Arrays.toString(output)+ ";" + Arrays.toString(boardOrReserve) + ";" + Arrays.toString(choseSphere));
+        getObserver().shoutAI(Arrays.toString(input) +";"+Arrays.toString(output)+ ";" + Arrays.toString(boardOrReserve) + ";" + Arrays.toString(choseSphere));
 
         game.moveSphere(sphere, toLocation);
         lastPylosLocation = toLocation;
