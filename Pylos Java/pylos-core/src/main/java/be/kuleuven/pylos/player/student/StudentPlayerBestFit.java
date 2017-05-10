@@ -3,9 +3,7 @@ package be.kuleuven.pylos.player.student;
 import be.kuleuven.pylos.game.*;
 import be.kuleuven.pylos.player.PylosPlayer;
 import be.kuleuven.pylos.player.PylosPlayerObserver;
-import be.kuleuven.pylos.player.codes.PylosPlayerBestFit;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -113,7 +111,7 @@ public class StudentPlayerBestFit extends PylosPlayer {
             input[4] = 1;
 //            }
         }
-        getObserver().shoutAI(Arrays.toString(input) +";"+Arrays.toString(output)+ ";" + Arrays.toString(boardOrReserve) + ";" + Arrays.toString(choseSphere));
+        game.addMoveToScript(Arrays.toString(input) +";"+Arrays.toString(output)+ ";" + Arrays.toString(boardOrReserve) + ";" + Arrays.toString(choseSphere),this.PLAYER_COLOR);
 
         game.moveSphere(sphere, toLocation);
         lastPylosLocation = toLocation;

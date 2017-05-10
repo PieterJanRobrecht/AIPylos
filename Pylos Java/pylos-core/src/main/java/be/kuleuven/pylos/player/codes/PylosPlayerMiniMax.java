@@ -50,8 +50,9 @@ public class PylosPlayerMiniMax extends PylosPlayer {
 	private double bestMinimax;
 	private PylosSphere bestSphere;
 	private PylosLocation bestLocation;
-
 	private HashMap<Long, Double> minimaxResults;
+
+	private int[] choseSphere = new int[30];
 
 	public PylosPlayerMiniMax() {
 		VAR_BRANCH_DEPTH = true;

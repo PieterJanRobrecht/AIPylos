@@ -2,6 +2,8 @@ package be.kuleuven.pylos.game;
 
 import be.kuleuven.pylos.player.PylosPlayer;
 
+import java.util.ArrayList;
+
 /**
  * Created by Jan on 20/02/2015.
  */
@@ -82,4 +84,7 @@ public interface PylosGameIF {
 	 */
 	public boolean passIsDraw() ;
 
+	public void addMoveToScript(String s,PylosPlayerColor color);
+
+	public ArrayList<String> getWinnerScript();
 }

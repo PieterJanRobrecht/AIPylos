@@ -3,7 +3,9 @@ package be.kuleuven.pylos.game;
 import be.kuleuven.pylos.player.PylosPlayer;
 import be.kuleuven.pylos.player.PylosPlayerObserver;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -25,6 +27,8 @@ public class PylosGame implements PylosGameIF {
 	private PylosPlayer winner = null;
 	private int nReservesOfWinner = -1;
 	private boolean abortFlag = false;
+	private ArrayList <String> scriptLight = new ArrayList<String>();
+	private ArrayList <String> scriptDark = new ArrayList<String>();
 
 	/* constructor ------------------------------------------------------------------------------------------------ */
 
@@ -34,6 +38,8 @@ public class PylosGame implements PylosGameIF {
 
 	public PylosGame(PylosBoard board, PylosPlayer playerLight, PylosPlayer playerDark, Random random) {
 		this(board, playerLight, playerDark, random, PylosGameObserver.NONE, PylosPlayerObserver.NONE);
+		this.scriptLight = new ArrayList<String>();
+		this.scriptDark = new ArrayList<String>();
 	}
 
 //	public PylosGame(PylosBoard board, PylosPlayer playerLight, PylosPlayer playerDark, PylosGameObserver gameObserver, PylosPlayerObserver playerObserver) {
@@ -52,6 +58,9 @@ public class PylosGame implements PylosGameIF {
 		this.playerObserver = playerObserver;
 		this.currentState = PylosGameState.MOVE;
 		this.boardStateCounts = new HashMap<>();
+		this.scriptLight = new ArrayList<String>();
+		this.scriptDark = new ArrayList<String>();
+
 	}
 
 	/* public methods --------------------------------------------------------------------------------------------- */
@@ -159,6 +168,27 @@ public class PylosGame implements PylosGameIF {
 
 		return isDrawState(board.toLong());
 	}
+
+	@Override
+	public void addMoveToScript(String s,PylosPlayerColor color) {
+		if(color == PylosPlayerColor.LIGHT){
+			scriptLight.add(s);
+
+		}else{
+			scriptDark.add(s);
+		}
+	}
+
+	@Override
+	public ArrayList<String> getWinnerScript() {
+		if(winner.PLAYER_COLOR==PylosPlayerColor.LIGHT) {
+			return scriptLight;
+		}else{
+			return scriptDark;
+		}
+
+	}
+
 
 	@Override
 	public PylosPlayer getWinner() {

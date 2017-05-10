@@ -6,6 +6,7 @@ import be.kuleuven.pylos.player.PylosPlayerObserver;
 import javafx.application.Platform;
 import javafx.scene.control.TextArea;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -117,6 +118,19 @@ public class Battle {
 			PylosBoard board = new PylosBoard();
 			PylosGame game = new PylosGame(board, playerLight, playerDark, random, PylosGameObserver.NONE, PylosPlayerObserver.CONSOLE_PLAYER_OBSERVER);
 			game.play();
+
+			// enkel int AI.txt oplaan als hij zelf gewonnen heeft.
+
+			if(game.getState()==PylosGameState.COMPLETED) {
+				PylosPlayer winner = game.getWinner();
+				if (winner.getClass()==be.kuleuven.pylos.player.student.StudentPlayerBestFit.class) {
+					for(String s:game.getWinnerScript()){
+						winner.getObserver().shoutAI(s);
+					}
+					writeText("Winner: "+winner.PLAYER_COLOR);
+				}
+			}
+
 		}
 		writeText("Done Learning");
     }

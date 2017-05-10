@@ -31,7 +31,7 @@ public abstract class PylosPlayer {
 		return RANDOM;
 	}
 
-	protected PylosPlayerObserver getObserver(){
+	public PylosPlayerObserver getObserver(){
 		return OBSERVER;
 	}
 
