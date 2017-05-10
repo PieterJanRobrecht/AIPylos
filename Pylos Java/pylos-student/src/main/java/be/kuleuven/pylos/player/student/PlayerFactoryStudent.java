@@ -4,9 +4,7 @@ import be.kuleuven.pylos.player.PylosPlayer;
 import be.kuleuven.pylos.player.PylosPlayerFactory;
 import be.kuleuven.pylos.player.PylosPlayerType;
 
-/**
- * Created by Jan on 20/02/2015.
- */
+
 public class PlayerFactoryStudent extends PylosPlayerFactory {
 
 	public PlayerFactoryStudent() {
@@ -17,7 +15,7 @@ public class PlayerFactoryStudent extends PylosPlayerFactory {
 	protected void createTypes() {
 
 		/* example */
-		add(new PylosPlayerType("Student") {
+		add(new PylosPlayerType("Student - AI") {
 			@Override
 			public PylosPlayer create() {
 				return new StudentPlayer();
