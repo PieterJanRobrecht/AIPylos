@@ -23,6 +23,8 @@ public class StudentPlayerBestFit extends PylosPlayer {
 
     @Override
     public void doMove(PylosGameIF game, PylosBoard board) {
+        getObserver().shoutBegin(board, this);
+
         resetInput();
         /* collect all possible locations */
         ArrayList<PylosLocation> allUsableLocations = new ArrayList<>();
@@ -113,8 +115,9 @@ public class StudentPlayerBestFit extends PylosPlayer {
             input[4] = 1;
 //            }
         }
-        getObserver().shoutAI(Arrays.toString(input) +";"+Arrays.toString(output)+ ";" + Arrays.toString(boardOrReserve) + ";" + Arrays.toString(choseSphere));
+//        getObserver().shoutAI(Arrays.toString(input) +";"+Arrays.toString(output)+ ";" + Arrays.toString(boardOrReserve) + ";" + Arrays.toString(choseSphere));
 
+        getObserver().shoutEnd(board, this);
         game.moveSphere(sphere, toLocation);
         lastPylosLocation = toLocation;
     }

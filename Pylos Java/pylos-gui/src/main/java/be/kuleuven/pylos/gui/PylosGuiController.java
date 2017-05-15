@@ -479,12 +479,12 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
 	}
 
 	@Override
-	public void shoutBegin(PylosBoard board) {
+	public void shoutBegin(PylosBoard board, PylosPlayer player) {
 
 	}
 
 	@Override
-	public void shoutEnd(PylosBoard board) {
+	public void shoutEnd(PylosBoard board, PylosPlayer player) {
 
 	}
 

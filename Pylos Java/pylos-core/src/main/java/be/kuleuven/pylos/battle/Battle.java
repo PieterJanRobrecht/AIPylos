@@ -115,7 +115,7 @@ public class Battle {
 		Battle.taLog = taLog;
 		for (int i = 0; i < runs; i++) {
 			PylosBoard board = new PylosBoard();
-			PylosGame game = new PylosGame(board, playerLight, playerDark, random, PylosGameObserver.NONE, PylosPlayerObserver.CONSOLE_PLAYER_OBSERVER);
+			PylosGame game = new PylosGame(board, playerLight, playerDark, random, PylosGameObserver.CONSOLE_GAME_OBSERVER, PylosPlayerObserver.CONSOLE_PLAYER_OBSERVER);
 			game.play();
 		}
 		writeText("Done Learning");

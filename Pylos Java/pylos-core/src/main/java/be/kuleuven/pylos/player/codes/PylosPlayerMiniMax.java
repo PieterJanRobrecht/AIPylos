@@ -67,6 +67,7 @@ public class PylosPlayerMiniMax extends PylosPlayer {
 
 	@Override
 	public void doMove(PylosGameIF game, PylosBoard board) {
+		getObserver().shoutBegin(board, this);
 
 		if (PRUNE_TEST) PRUNE_ENABLE = false;
 		init(game.getState(), board);
@@ -169,6 +170,7 @@ public class PylosPlayerMiniMax extends PylosPlayer {
 		/* execute the best move */
 		assert bestSphere != null;
 		if (PRINT_MINIMAX_RESULT) System.out.println("-------> " + bestMinimax);
+		getObserver().shoutEnd(board, this);
 		game.moveSphere(bestSphere, bestLocation);
 	}
 
