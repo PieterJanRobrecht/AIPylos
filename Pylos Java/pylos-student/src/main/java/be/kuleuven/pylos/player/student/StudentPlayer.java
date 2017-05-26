@@ -51,6 +51,14 @@ public class StudentPlayer extends PylosPlayer {
         }
     }
 
+    public void positiveFeedback(){
+        //Update chanceArray in a good way
+    }
+
+    public void negativeFeedback() {
+        //Update chanceArray in a bad way
+    }
+
     @Override
     public void doMove(PylosGameIF game, PylosBoard board) {
         List<double[][]> data = readBoard(game, board);
