@@ -1,9 +1,6 @@
 package be.kuleuven.pylos.player.student;
 
-import be.kuleuven.pylos.game.PylosBoard;
-import be.kuleuven.pylos.game.PylosGameIF;
-import be.kuleuven.pylos.game.PylosLocation;
-import be.kuleuven.pylos.game.PylosSphere;
+import be.kuleuven.pylos.game.*;
 import be.kuleuven.pylos.player.PylosPlayer;
 import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.ml.data.MLData;
@@ -29,11 +26,15 @@ public class StudentPlayer extends PylosPlayer {
     double[][] boardOrReserve;
     double[][] choseSphere;
 
+    boolean learn = false;
+
     PylosLocation[] locations;
     PylosSphere[][] spheres;
 
     BasicNetwork networkLocation;
     BasicNetwork networkSphere;
+
+    PylosGameSimulator simulator;
 
     int counter = 0;
 
@@ -51,6 +52,10 @@ public class StudentPlayer extends PylosPlayer {
         }
     }
 
+    private void init(PylosGameState state, PylosBoard board) {
+        this.simulator = new PylosGameSimulator(state, PLAYER_COLOR, board);
+    }
+
     public void positiveFeedback(){
         //Update chanceArray in a good way
     }
@@ -61,6 +66,7 @@ public class StudentPlayer extends PylosPlayer {
 
     @Override
     public void doMove(PylosGameIF game, PylosBoard board) {
+        init(game.getState(), board);
         List<double[][]> data = readBoard(game, board);
         System.out.println("Read the board: " + Arrays.toString(data.get(0)[0]));
         List<double[]> answerLocation = computerLocation(data.get(0)[0]);
@@ -395,5 +401,9 @@ public class StudentPlayer extends PylosPlayer {
             boardOrReserve[1] = 1;
         }
         sphere[1] = board.getReserve(this);
+    }
+
+    public void setLearn(boolean learn) {
+        this.learn = learn;
     }
 }

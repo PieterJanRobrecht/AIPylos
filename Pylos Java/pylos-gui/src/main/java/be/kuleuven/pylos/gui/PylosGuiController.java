@@ -189,13 +189,14 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
                 StudentPlayer pl = new StudentPlayer();
                 time += (System.currentTimeMillis() - startTime);
 
+                pl.setLearn(true);
                 do {
                     startTime = System.currentTimeMillis();
 
                     PylosBoard board = new PylosBoard();
                     PylosGame game = new PylosGame(board, playerLight, pl, random, PylosGameObserver.NONE, PylosPlayerObserver.CONSOLE_PLAYER_OBSERVER);
                     game.play();
-                    if (game.getWinner().PLAYER_COLOR == pl.PLAYER_COLOR) {
+                    if (game.getWinner() != null && game.getWinner().PLAYER_COLOR == pl.PLAYER_COLOR) {
                         pl.positiveFeedback();
                     } else {
                         pl.negativeFeedback();
@@ -203,8 +204,9 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
 
                     time += (System.currentTimeMillis() - startTime);
 //                } while (time < 600000);
-                }while (time<60000);
+                }while (time<6000);
 
+                pl.setLearn(false);
                 taLog.appendText("DONE LEARNING!");
             } else {
                 taLog.appendText("You need to select the right players");
