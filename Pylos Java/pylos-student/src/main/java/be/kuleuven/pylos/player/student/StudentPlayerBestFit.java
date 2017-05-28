@@ -72,7 +72,7 @@ public class StudentPlayerBestFit extends PylosPlayer {
                 output[2] = 1;
             }
             input[2] = 1;
-        }  {
+        }  else {
             // try to move a used sphere
             // prefer higher locations, than max in square
             // than pick a sphere with minimum in square and which does not enable the other player to create a square

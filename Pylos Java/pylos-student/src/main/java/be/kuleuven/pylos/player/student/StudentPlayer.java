@@ -176,11 +176,12 @@ public class StudentPlayer extends PylosPlayer {
 
         int epoch = 1;
 
+        System.out.println("Training Net 1");
         do {
             train.iteration();
             System.out.println("Epoch #" + epoch + " Error:" + train.getError());
             epoch++;
-        } while (train.getError() > 0.01);
+        } while (train.getError() > 0.01 && epoch < 5000);
         train.finishTraining();
 
         trainingSet = new BasicMLDataSet(boardOrReserve, choseSphere);
@@ -190,11 +191,12 @@ public class StudentPlayer extends PylosPlayer {
 
         epoch = 1;
 
+        System.out.println("Training Net 2");
         do {
             train2.iteration();
             System.out.println("Epoch #" + epoch + " Error:" + train2.getError());
             epoch++;
-        } while (train2.getError() > 0.01);
+        } while (train2.getError() > 0.01 && epoch < 5000);
         train2.finishTraining();
     }
 
