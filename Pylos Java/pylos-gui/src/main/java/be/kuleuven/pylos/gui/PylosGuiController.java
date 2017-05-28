@@ -220,8 +220,12 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
                 sb.append(Arrays.toString(wins) + "\n");
             }
         }
-        try (PrintWriter out = new PrintWriter("filename.txt")) {
-            out.println(sb);
+        try {
+            FileOutputStream outputFileAI;
+            PrintStream printOutputAI;
+            outputFileAI = new FileOutputStream("data.txt");
+            printOutputAI = new PrintStream(outputFileAI);
+            printOutputAI.println(sb);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
