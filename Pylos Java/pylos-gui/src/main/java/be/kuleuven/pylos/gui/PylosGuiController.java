@@ -28,12 +28,25 @@ import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
+import org.encog.Encog;
+import org.encog.engine.network.activation.ActivationSigmoid;
+import org.encog.ml.data.MLDataSet;
+import org.encog.ml.data.basic.BasicMLDataSet;
+import org.encog.neural.networks.BasicNetwork;
+import org.encog.neural.networks.layers.BasicLayer;
+import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
+import static org.encog.persist.EncogDirectoryPersistence.*;
 
 public class PylosGuiController implements Initializable, PylosGameObserver, PylosPlayerObserver {
 
@@ -99,6 +112,15 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
 	private PylosBoard pylosBoard;
 	private PylosGame game;
 	private boolean battleStop;
+
+	BasicNetwork networkLocation;
+	BasicNetwork networkSphere;
+	double[][] input;
+	double[][] output;
+	double[][] boardOrReserve;
+	double[][] choseSphere;
+
+	int counter = 0;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -181,10 +203,133 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
 			if (cbPlayerLight.getValue() != PylosScene.HUMAN_PLAYER_TYPE || cbPlayerDark.getValue() != PylosScene.HUMAN_PLAYER_TYPE) {
 				taLog.appendText("IT'S TIME TO LEARN!\n");
 				Battle.learn(playerLight, playerDark, 1000, taLog);
+
+				readFile();
+				taLog.appendText("Read the entire file and all arrays are made");
+				makeNeuralNetwork();
+
+				if(counter==0){
+					taLog.appendText("!!!!!!!!!!! ------- file empty ------- !!!!!!!!!!!");
+				}else{
+					taLog.appendText("Neural net were made");
+					trainNet();
+					taLog.appendText("Net were trained");
+					saveNet();
+				}
+
 			} else{
 				taLog.appendText("You need to select the right players");
 			}
 		}).start();
+	}
+
+	private void saveNet() {
+		saveObject(new File("locationNet.eg"), networkLocation);
+		saveObject(new File("sphereNet.eg"), networkSphere);
+	}
+
+	private void trainNet() {
+		MLDataSet trainingSet = new BasicMLDataSet(input, output);
+
+		// train the neural network
+		final ResilientPropagation train = new ResilientPropagation(networkLocation, trainingSet);
+
+		int epoch = 1;
+
+		System.out.println("Training Net 1");
+		do {
+			train.iteration();
+			System.out.println("Epoch #" + epoch + " Error:" + train.getError());
+			epoch++;
+		} while (train.getError() > 0.01 && epoch < 5000);
+		train.finishTraining();
+
+		trainingSet = new BasicMLDataSet(boardOrReserve, choseSphere);
+
+		// train the neural network
+		final ResilientPropagation train2 = new ResilientPropagation(networkSphere, trainingSet);
+
+		epoch = 1;
+
+		System.out.println("Training Net 2");
+		do {
+			train2.iteration();
+			System.out.println("Epoch #" + epoch + " Error:" + train2.getError());
+			epoch++;
+		} while (train2.getError() > 0.01 && epoch < 5000);
+		train2.finishTraining();
+	}
+
+	private void makeNeuralNetwork() {
+		networkLocation = new BasicNetwork();
+		networkLocation.addLayer(new BasicLayer(null, true, 5));
+		networkLocation.addLayer(new BasicLayer(new ActivationSigmoid(), true, 5));
+		networkLocation.addLayer(new BasicLayer(new ActivationSigmoid(), false, 5));
+		networkLocation.getStructure().finalizeStructure();
+		networkLocation.reset();
+
+		networkSphere = new BasicNetwork();
+		networkSphere.addLayer(new BasicLayer(null, true, 2));
+		networkSphere.addLayer(new BasicLayer(new ActivationSigmoid(), true, 5));
+		networkSphere.addLayer(new BasicLayer(new ActivationSigmoid(), false, 2));
+		networkSphere.getStructure().finalizeStructure();
+		networkSphere.reset();
+	}
+
+	private void readFile() {
+		try {
+			List<double[]> input = new ArrayList<>();
+			List<double[]> output = new ArrayList<>();
+			List<double[]> boardOrReserve = new ArrayList<>();
+			List<double[]> choseSphere = new ArrayList<>();
+
+			counter = 0;
+
+			try (BufferedReader br = new BufferedReader(new FileReader("AI.txt"))) {
+				String line;
+
+				while ((line = br.readLine()) != null) {
+					counter++;
+					String[] strings = line.split(";");
+					for (int i = 0; i < strings.length; i++) {
+						String s = strings[i];
+						s = s.substring(1, s.length() - 1);
+						String[] data = s.split(", ");
+						double[] intData = new double[data.length];
+
+						for (int j = 0; j < data.length; j++) {
+							intData[j] = Integer.parseInt(data[j]);
+						}
+						switch (i) {
+							case 0:
+								input.add(intData);
+								break;
+							case 1:
+								output.add(intData);
+								break;
+							case 2:
+								boardOrReserve.add(intData);
+								break;
+							case 3:
+								choseSphere.add(intData);
+								break;
+						}
+					}
+				}
+			}
+
+			this.input = new double[counter][5];
+			this.output = new double[counter][5];
+			this.boardOrReserve = new double[counter][2];
+			this.choseSphere = new double[counter][2];
+
+			input.toArray(this.input);
+			output.toArray(this.output);
+			boardOrReserve.toArray(this.boardOrReserve);
+			choseSphere.toArray(this.choseSphere);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void playGame() {
