@@ -68,6 +68,7 @@
                   <HBox>
                      <children>
                         <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#learnIt" text="LEARN IT" HBox.hgrow="ALWAYS" />
+                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#main" text="MAIN" HBox.hgrow="ALWAYS" />
                      </children>
                   </HBox>
                </children>

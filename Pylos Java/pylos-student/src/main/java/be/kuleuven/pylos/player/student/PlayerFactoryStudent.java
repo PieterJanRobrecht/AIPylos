@@ -18,7 +18,7 @@ public class PlayerFactoryStudent extends PylosPlayerFactory {
 		add(new PylosPlayerType("Student - AI") {
 			@Override
 			public PylosPlayer create() {
-				return new StudentPlayer();
+				return new StudentPlayer("locationNet.eg", "sphereNet.eg");
 			}
 		});
 

@@ -5,19 +5,11 @@ import be.kuleuven.pylos.game.PylosGameIF;
 import be.kuleuven.pylos.game.PylosLocation;
 import be.kuleuven.pylos.game.PylosSphere;
 import be.kuleuven.pylos.player.PylosPlayer;
-import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.ml.data.MLData;
-import org.encog.ml.data.MLDataSet;
 import org.encog.ml.data.basic.BasicMLData;
-import org.encog.ml.data.basic.BasicMLDataSet;
 import org.encog.neural.networks.BasicNetwork;
-import org.encog.neural.networks.layers.BasicLayer;
-import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
 import static org.encog.persist.EncogDirectoryPersistence.*;
 
@@ -34,13 +26,13 @@ public class StudentPlayer extends PylosPlayer {
     BasicNetwork networkLocation;
     BasicNetwork networkSphere;
 
-    public StudentPlayer() {
-        loadNet();
+    public StudentPlayer(String file1, String file2) {
+        loadNet(file1,file2);
     }
 
-    private void loadNet() {
-        networkLocation = (BasicNetwork) loadObject(new File("locationNet.eg"));
-        networkSphere = (BasicNetwork) loadObject(new File("sphereNet.eg"));
+    private void loadNet(String file1, String file2) {
+        networkLocation = (BasicNetwork) loadObject(new File(file1));
+        networkSphere = (BasicNetwork) loadObject(new File(file2));
     }
 
     @Override

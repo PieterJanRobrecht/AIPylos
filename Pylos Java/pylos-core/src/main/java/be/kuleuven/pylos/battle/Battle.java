@@ -103,7 +103,9 @@ public class Battle {
 		writeText("Time: " + String.format("%.2f", totalPlayTime) + " sec (" + String.format("%.2f", totalPlayTime / runs) + " sec / game)");
 		writeText("----------------------------");
 
-		double[] wins = new double[]{(double)(totalLightWin) / runs, (double)(totalDarkWin) / runs, (double)(totalDraw) / runs};
+		double[] wins = new double[]{(double) lightStartLightWin / (runs / 2), (double) lightStartDarkWin / (runs / 2), (double) lightStartDraw / (runs / 2),
+				(double) darkStartLightWin / (runs / 2), (double) darkStartDarkWin / (runs / 2), (double) darkStartDraw / (runs / 2),
+				(double)(totalLightWin) / runs, (double)(totalDarkWin) / runs, (double)(totalDraw) / runs};
 		return wins;
 	}
 
@@ -111,11 +113,11 @@ public class Battle {
 		Platform.runLater(() -> taLog.appendText(text + "\n"));
 	}
 
-    public static void learn(PylosPlayer playerLight, PylosPlayer playerDark, int runs, TextArea taLog) {
+    public static void learn(PylosPlayer playerLight, PylosPlayer playerDark, int runs, TextArea taLog, PylosGameObserver observer1, PylosPlayerObserver observer2) {
 		Battle.taLog = taLog;
 		for (int i = 0; i < runs; i++) {
 			PylosBoard board = new PylosBoard();
-			PylosGame game = new PylosGame(board, playerLight, playerDark, random, PylosGameObserver.NONE, PylosPlayerObserver.CONSOLE_PLAYER_OBSERVER);
+			PylosGame game = new PylosGame(board, playerLight, playerDark, random, observer1, observer2);
 			game.play();
 		}
 		writeText("Done Learning");
