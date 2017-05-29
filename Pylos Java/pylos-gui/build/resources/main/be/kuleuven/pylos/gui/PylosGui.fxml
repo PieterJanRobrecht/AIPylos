@@ -63,6 +63,7 @@
                   <HBox VBox.vgrow="ALWAYS">
                      <children>
                         <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#killIt" text="KILL IT" HBox.hgrow="ALWAYS" />
+                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#learn_player" text="LEARN PLAYER" />
                      </children>
                   </HBox>
                   <HBox>

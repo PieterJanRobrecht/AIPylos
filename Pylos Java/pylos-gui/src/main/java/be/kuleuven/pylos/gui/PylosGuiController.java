@@ -7,7 +7,7 @@ import be.kuleuven.pylos.player.PylosPlayerFactory;
 import be.kuleuven.pylos.player.PylosPlayerObserver;
 import be.kuleuven.pylos.player.PylosPlayerType;
 import be.kuleuven.pylos.player.codes.PlayerFactoryCodes;
-import be.kuleuven.pylos.player.codes.PylosPlayerBestFit;
+import be.kuleuven.pylos.player.codes.PylosPlayerMiniMax;
 import be.kuleuven.pylos.player.student.PlayerFactoryStudent;
 import be.kuleuven.pylos.player.student.StudentPlayer;
 import javafx.animation.Transition;
@@ -29,7 +29,6 @@ import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
-import org.encog.Encog;
 import org.encog.engine.network.activation.ActivationSigmoid;
 import org.encog.ml.data.MLDataSet;
 import org.encog.ml.data.basic.BasicMLDataSet;
@@ -38,7 +37,6 @@ import org.encog.neural.networks.layers.BasicLayer;
 import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -197,7 +195,11 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
     @FXML
     void learnIt(ActionEvent event) {
         taLog.clear();
-        new Thread(() -> learnFrom("locationNet.eg", "sphereNet.eg")).start();
+        new Thread(() -> {
+            PylosPlayer playerLight = cbPlayerLight.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.LIGHT) : cbPlayerLight.getValue().create();
+            PylosPlayer playerDark = cbPlayerDark.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.DARK) : cbPlayerDark.getValue().create();
+            learnFrom("locationNet.eg", "sphereNet.eg", playerLight, playerDark);
+        }).start();
     }
 
     @FXML
@@ -213,7 +215,11 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
                 }
                 String file1 = "locationNet" + a + ".eg";
                 String file2 = "locationNet" + a + ".eg";
-                new Thread(() -> learnFrom(file1, file2)).start();
+                new Thread(() -> {
+                    PylosPlayer playerLight = cbPlayerLight.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.LIGHT) : cbPlayerLight.getValue().create();
+                    PylosPlayer playerDark = cbPlayerDark.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.DARK) : cbPlayerDark.getValue().create();
+                    learnFrom(file1, file2, playerLight, playerDark);
+                }).start();
                 PylosPlayer playerLight = cbPlayerLight.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.LIGHT) : cbPlayerLight.getValue().create();
                 StudentPlayer sp = new StudentPlayer(file1, file2);
                 double[] wins = battleItOut(playerLight, sp);
@@ -231,36 +237,39 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
         }
     }
 
-    private void learnFrom(String s, String s1) {
-        PylosPlayer playerLight = cbPlayerLight.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.LIGHT) : cbPlayerLight.getValue().create();
-        PylosPlayer playerDark = cbPlayerDark.getValue() == PylosScene.HUMAN_PLAYER_TYPE ? pylosScene.getHumanPlayer(PylosPlayerColor.DARK) : cbPlayerDark.getValue().create();
-        if (cbPlayerLight.getValue() != PylosScene.HUMAN_PLAYER_TYPE || cbPlayerDark.getValue() != PylosScene.HUMAN_PLAYER_TYPE) {
-            taLog.appendText("IT'S TIME TO LEARN!\n");
-            long startTime = System.currentTimeMillis();
-            long timeWasted = 0;
-            long maxTime = 600000;
+    @FXML
+    public PylosPlayer learn_player() {
+        PylosPlayer playerLight = new PylosPlayerMiniMax(1);
+        PylosPlayerMiniMax playerDark = new PylosPlayerMiniMax(3);
+        learnFrom("locationNet.eg", "sphereNet.eg", playerLight, playerDark);
+        StudentPlayer learnedPlayer = new StudentPlayer("locationNet.eg", "sphereNet.eg");
+        System.out.println("Returning player");
+        return learnedPlayer;
+    }
 
-            Battle.learn(playerLight, playerDark, 1000, taLog, PylosGameObserver.NONE, PylosPlayerObserver.CONSOLE_PLAYER_OBSERVER);
-            Battle.learn(playerDark, playerLight, 1000, taLog, PylosGameObserver.CONSOLE_GAME_OBSERVER, PylosPlayerObserver.NONE);
+    private void learnFrom(String s, String s1, PylosPlayer playerLight, PylosPlayer playerDark) {
+        taLog.appendText("IT'S TIME TO LEARN!\n");
+        long startTime = System.currentTimeMillis();
+        long timeWasted = 0;
+        long maxTime = 600000;
 
-            readFile();
-            taLog.appendText("Read the entire file \nand all arrays are made\n");
-            makeNeuralNetwork();
+        Battle.learn(playerLight, playerDark, 1000, taLog, PylosGameObserver.NONE, PylosPlayerObserver.CONSOLE_PLAYER_OBSERVER);
+        Battle.learn(playerDark, playerLight, 1000, taLog, PylosGameObserver.CONSOLE_GAME_OBSERVER, PylosPlayerObserver.NONE);
 
-            timeWasted += System.currentTimeMillis() - startTime;
-            long left = (maxTime - timeWasted) / (1000 * 60);
-            taLog.appendText("Still got " + left + " minutes left to learn");
-            if (counter == 0) {
-                taLog.appendText("!!!!!!!!!!! ------- file empty ------- !!!!!!!!!!!");
-            } else {
-                taLog.appendText("Neural net were made\n");
-                trainNet(maxTime, timeWasted);
-                taLog.appendText("Net were train\n");
-                saveNet(s, s1);
-            }
+        readFile();
+        taLog.appendText("Read the entire file \nand all arrays are made\n");
+        makeNeuralNetwork();
 
+        timeWasted += System.currentTimeMillis() - startTime;
+        long left = (maxTime - timeWasted) / (1000 * 60);
+        taLog.appendText("Still got " + left + " minutes left to learn");
+        if (counter == 0) {
+            taLog.appendText("!!!!!!!!!!! ------- file empty ------- !!!!!!!!!!!");
         } else {
-            taLog.appendText("You need to select the right players\n");
+            taLog.appendText("Neural net were made\n");
+            trainNet(maxTime, timeWasted);
+            taLog.appendText("Net were train\n");
+            saveNet(s, s1);
         }
     }
 
@@ -403,7 +412,7 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
             Platform.runLater(() -> cbAnimate.setSelected(true));
         }
         game = new PylosGame(pylosBoard, playerLight, playerDark, random, this, this);
-		/* play the game */
+        /* play the game */
         game.play();
         return game;
     }
@@ -543,11 +552,11 @@ public class PylosGuiController implements Initializable, PylosGameObserver, Pyl
             if (me.isShiftDown()) modifier = SHIFT_MULTIPLIER;
 
             if (me.isPrimaryButtonDown()) {
-				/* rotate */
+                /* rotate */
                 rz.setAngle(rz.getAngle() + mouseDeltaX * MOUSE_SPEED * modifier * ROTATION_SPEED);
                 rx.setAngle(rx.getAngle() + mouseDeltaY * MOUSE_SPEED * modifier * ROTATION_SPEED);
             } else if (me.isSecondaryButtonDown()) {
-				/* pan */
+                /* pan */
                 panGroup.setTranslateX(panGroup.getTranslateX() + mouseDeltaX * MOUSE_SPEED * modifier * PAN_SPEED);
                 rotateGroup.setTranslateY(rotateGroup.getTranslateY() + mouseDeltaY * MOUSE_SPEED * modifier * PAN_SPEED);
             }
